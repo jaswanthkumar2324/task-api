@@ -1,51 +1,45 @@
 package com.jaswanth.taskapi.service;
 
+import com.jaswanth.taskapi.model.Task;
+import com.jaswanth.taskapi.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-
-import com.jaswanth.taskapi.model.Task;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TaskService {
-    private final ArrayList<Task> tasks = new ArrayList<>();
-    private int nextId = 1;
 
-    public Task add(String title) {
-        Task task = new Task(nextId, title);
-        nextId++;
-        tasks.add(task);
-        return task;
+    private final TaskRepository repository;
+
+    public TaskService(TaskRepository repository) {
+        this.repository = repository;
     }
 
-    public ArrayList<Task> list() {
-        return tasks;
+    public List<Task> list() {
+        return repository.findAll();
+    }
+
+    public Task add(String title) {
+        return repository.save(new Task(title));
     }
 
     public boolean markDone(int id) {
-        Task task = findById(id);
-        if (task == null) {
+        Optional<Task> found = repository.findById(id);
+        if (found.isEmpty()) {
             return false;
         }
+        Task task = found.get();
         task.markDone();
+        repository.save(task);
         return true;
     }
 
     public boolean delete(int id) {
-        Task task = findById(id);
-        if (task == null) {
+        if (!repository.existsById(id)) {
             return false;
         }
-        tasks.remove(task);
+        repository.deleteById(id);
         return true;
-    }
-
-    public Task findById(int id) {
-        for (Task t : tasks) {
-            if (t.getId() == id) {
-                return t;
-            }
-        }
-        return null;
     }
 }

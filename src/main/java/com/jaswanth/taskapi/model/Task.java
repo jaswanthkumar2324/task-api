@@ -1,15 +1,22 @@
 package com.jaswanth.taskapi.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
-
+@Entity
+@Table(name = "tasks")
 public class Task {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String title;
     private boolean completed;
     private LocalDateTime createdAt;
 
-    public Task(int id, String title) {
-        this.id = id;
+    protected Task() {}
+
+    public Task(String title) {
         this.title = title;
         this.completed = false;
         this.createdAt = LocalDateTime.now();
